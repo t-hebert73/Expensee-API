@@ -1,0 +1,45 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+generator pothos {
+  provider = "prisma-pothos-types"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        Int     @id @default(autoincrement())
+  createdAt DateTime @default(now())
+  email     String
+  password  String
+  expenses  Expense[]
+  name      String
+}
+
+model Expense {
+  id        Int     @id @default(autoincrement())
+  category  String
+  createdAt DateTime @default(now())
+  frequency String
+  name      String
+  payments  Payment[]
+  provider  String
+  userId    Int
+  user      User    @relation(fields: [userId], references: [id])
+}
+
+model Payment {
+  id        Int     @id @default(autoincrement())
+  createdAt DateTime @default(now())
+  amount    Float
+  expenseId Int
+  expense   Expense @relation(fields: [expenseId], references: [id])
+  paidAt    DateTime @default(now())
+}

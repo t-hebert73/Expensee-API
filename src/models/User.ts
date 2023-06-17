@@ -1,7 +1,6 @@
 import { builder } from "../builder";
-import { prisma } from "../db";
 import { GraphQLError } from "graphql";
-import authenticator from "../libs/auth/Authenticator";
+import Authenticator from "../libs/auth/Authenticator";
 
 builder.prismaObject("User", {
   fields: (t) => ({
@@ -15,14 +14,14 @@ builder.prismaObject("User", {
   }),
 });
 
-builder.queryField("users", (t) =>
-  t.prismaField({
-    type: ["User"],
-    resolve: async (query) => {
-      return prisma.user.findMany({ ...query });
-    },
-  })
-);
+// builder.queryField("users", (t) =>
+//   t.prismaField({
+//     type: ["User"],
+//     resolve: async (query) => {
+//       return prisma.user.findMany({ ...query });
+//     },
+//   })
+// );
 
 builder.objectType("LoginResult", {
   description: "Resulting jwt and user information",
@@ -66,9 +65,51 @@ builder.mutationField("login", (t) =>
         required: true,
       }),
     },
-    resolve: async (parent, args) => {
+    resolve: async (parent, args, ctx) => {
       try {
+        const authenticator = new Authenticator()
         return await authenticator.attemptLogin(args.loginInput);
+      } catch (error) {
+        const err = error as Error;
+        throw new GraphQLError(err.message);
+      }
+    },
+  })
+);
+
+builder.objectType("RegisterResult", {
+  description: "Status of registration",
+  fields: (t) => ({
+    status: t.string({
+      resolve: (parent) => {
+        return parent.status
+      },
+    }),
+  }),
+});
+
+const RegisterInput = builder.inputType("RegisterInput", {
+  fields: (t) => ({
+    fullName: t.string({ required: true }),
+    email: t.string({ required: true }),
+    password: t.string({ required: true }),
+    confirmPassword: t.string({ required: true }),
+  }),
+});
+
+builder.mutationField("register", (t) =>
+  t.field({
+    type: "RegisterResult",
+    args: {
+      registerInput: t.arg({
+        type: RegisterInput,
+        required: true,
+      }),
+    },
+    resolve: async (parent, args, ctx) => {
+      try {
+        const authenticator = new Authenticator()
+        return await authenticator.attemptRegister(args.registerInput);
       } catch (error) {
         const err = error as Error;
         throw new GraphQLError(err.message);

@@ -1,8 +1,11 @@
 import { createServer } from "node:http";
 import { createYoga } from "graphql-yoga";
 import { schema } from "./schema";
-import authenticator from "./libs/auth/Authenticator";
 import { GraphQLError } from "graphql";
+import ExpenseRepository from "./repositories/ExpenseRepository";
+import UserRepository from "./repositories/UserRepository";
+import Authenticator from "./libs/auth/Authenticator";
+import PaymentRepository from "./repositories/PaymentRepository";
 
 if (
   !process.env.JWT_ACCESS_TOKEN_SECRET ||
@@ -15,13 +18,17 @@ const yoga = createYoga({
   schema,
   context: async ({ request }) => ({
     user: getLoggedInUser(request),
+    expenseRepository: getExpenseRepository(request),
+    paymentRepository: getPaymentRepository(request),
+    userRepository: getUserRepository(request)
   }),
 });
 
-const getLoggedInUser = (request: any) => {
+const getLoggedInUser = (request: Request) => {
   if (!request.headers.get("authorization")) return null;
 
   try {
+    const authenticator: Authenticator = new Authenticator()
     const jwtPayload = authenticator.authenticateToken(
       request.headers.get("authorization")
     );
@@ -32,6 +39,18 @@ const getLoggedInUser = (request: any) => {
     throw new GraphQLError(err.message);
   }
 };
+
+const getExpenseRepository = (request: Request) => {
+  return new ExpenseRepository(getLoggedInUser(request))
+}
+
+const getPaymentRepository = (request: Request) => {
+  return new PaymentRepository(getLoggedInUser(request))
+}
+
+const getUserRepository = (request: Request) => {
+  return new UserRepository(getLoggedInUser(request))
+}
 
 // Pass it into a server to hook into request handlers.
 const server = createServer(yoga);

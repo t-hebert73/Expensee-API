@@ -6,17 +6,22 @@ import { DateResolver } from "graphql-scalars";
 import PrismaPlugin from "@pothos/plugin-prisma";
 import type PrismaTypes from "@pothos/plugin-prisma/generated";
 import { prisma } from "./db";
-import { ILoginResult, JwtToken } from "./libs/auth/Authenticator";
+import { ILoginResult, JwtToken, IRegisterResult } from "./libs/auth/Authenticator";
 import { GraphQLError } from "graphql";
 import { User } from "@prisma/client";
+import ExpenseRepository from "./repositories/ExpenseRepository";
+import UserRepository from "./repositories/UserRepository";
+import PaymentRepository from "./repositories/PaymentRepository";
 
 export const builder = new SchemaBuilder<{
   AuthScopes: {
     loggedIn: boolean;
-    employee: boolean;
   };
   Context: {
-    user: User
+    user: User;
+    expenseRepository: ExpenseRepository;
+    paymentRepository: PaymentRepository;
+    userRepository: UserRepository;
   };
   Scalars: {
     Date: { Input: Date; Output: Date };
@@ -25,15 +30,15 @@ export const builder = new SchemaBuilder<{
   Objects: {
     LoginResult: ILoginResult;
     JwtToken: JwtToken;
+    RegisterResult: IRegisterResult;
   };
 }>({
   scopeAuthOptions: {
     unauthorizedError: (parent, context, info, result) => new GraphQLError(`Not authorized`),
   },
   plugins: [ScopeAuthPlugin, PrismaPlugin],
-  authScopes: async (context: any) => ({
+  authScopes: async (context) => ({
     loggedIn: !!context.user,
-    employee: false,
   }),
   prisma: {
     client: prisma,

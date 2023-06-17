@@ -1,7 +1,5 @@
 import { builder } from "../builder";
-import { prisma } from "../db";
 import { GraphQLError } from "graphql";
-import { Prisma, User } from "@prisma/client";
 
 builder.prismaObject("Expense", {
   fields: (t) => ({
@@ -28,16 +26,29 @@ builder.queryField("expenses", (t) =>
       category: t.arg.string(),
     },
     resolve: async (parent, root, args, ctx, info) => {
-      const query: Prisma.ExpenseFindManyArgs = {};
-      query.where = {};
+      return await ctx.expenseRepository.getMany(args.category);
+    },
+  })
+);
 
-      query.where.category = args.category ? args.category : undefined;
-
-      query.where.user = {
-        id: ctx.user.id,
-      };
-
-      return await prisma.expense.findMany(query);
+builder.queryField("expense", (t) =>
+  t.prismaField({
+    authScopes: {
+      loggedIn: true,
+    },
+    type: "Expense",
+    args: {
+      id: t.arg.int({
+        required: true,
+      }),
+    },
+    resolve: async (parent, root, args, ctx, info) => {
+      try {
+        return await ctx.expenseRepository.get(args.id);
+      } catch (error) {
+        const err = error as Error;
+        throw new GraphQLError(err.message);
+      }
     },
   })
 );
@@ -64,16 +75,7 @@ builder.mutationField("createExpense", (t) =>
       }),
     },
     resolve: async (parent, root, args, ctx, info) => {
-      const expense = {
-        category: args.expenseInput.category,
-        frequency: args.expenseInput.frequency,
-        provider: args.expenseInput.provider,
-        user: { connect: { id: ctx.user.id } },
-        name: args.expenseInput.name,
-      };
-      return await prisma.expense.create({
-        data: expense,
-      });
+      return await ctx.expenseRepository.create(args.expenseInput);
     },
   })
 );
@@ -94,19 +96,8 @@ builder.mutationField("updateExpense", (t) =>
       }),
     },
     resolve: async (parent, root, args, ctx, info) => {
-      const expense = {
-        category: args.expenseInput.category,
-        frequency: args.expenseInput.frequency,
-        provider: args.expenseInput.provider,
-        name: args.expenseInput.name,
-      };
       try {
-        return await prisma.expense.update({
-          where: {
-            id: args.id,
-          },
-          data: expense,
-        });
+        return await ctx.expenseRepository.update(args.id, args.expenseInput);
       } catch (error) {
         const err = error as Error;
         throw new GraphQLError(err.message);

@@ -6,7 +6,7 @@
   "scripts": {
     "test": "jest",
     "build": "npm i && npx prisma generate",
-    "dev": "ts-node-dev --exit-child src/index.ts",
+    "dev": "ts-node-dev --respawn --exit-child src/index.ts",
     "migrate": "npx prisma migrate"
   },
   "keywords": [],

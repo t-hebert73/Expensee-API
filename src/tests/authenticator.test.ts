@@ -19,7 +19,8 @@ describe("testing authenticator class", () => {
 
     prismaMock.user.findFirst.mockResolvedValue(mockUser);
 
-    const authResult = await Authenticator.attemptLogin(loginInput);
+    const authenticator = new Authenticator()
+    const authResult = await authenticator.attemptLogin(loginInput);
 
     expect(authResult.user).toMatchObject<User>({ ...mockUser });
     expect(authResult.jwt.access).toBeTruthy();
@@ -35,7 +36,8 @@ describe("testing authenticator class", () => {
 
     expect.assertions(1);
     try {
-      await Authenticator.attemptLogin(loginInput);
+      const authenticator = new Authenticator()
+      await authenticator.attemptLogin(loginInput);
     } catch (error) {
       expect(error).toBeInstanceOf(Error);
     }
@@ -59,7 +61,8 @@ describe("testing authenticator class", () => {
 
     expect.assertions(1);
     try {
-      await Authenticator.attemptLogin(loginInput);
+      const authenticator = new Authenticator()
+      await authenticator.attemptLogin(loginInput);
     } catch (error) {
       expect(error).toBeInstanceOf(Error);
     }

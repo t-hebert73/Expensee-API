@@ -9,7 +9,6 @@ builder.prismaObject("User", {
       type: "Date",
     }),
     email: t.exposeString("email"),
-    expenses: t.relation("expenses"),
     name: t.exposeString("name"),
   }),
 });

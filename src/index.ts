@@ -36,7 +36,9 @@ const getLoggedInUser = (request: Request) => {
     return jwtPayload.user;
   } catch (error) {
     const err = error as Error;
-    throw new GraphQLError(err.message);
+    throw new GraphQLError(err.message, { extensions: {
+      code: 'FORBIDDEN'
+    }});
   }
 };
 

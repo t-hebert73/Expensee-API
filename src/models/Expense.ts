@@ -10,9 +10,8 @@ builder.prismaObject("Expense", {
     }),
     frequency: t.exposeString("frequency"),
     name: t.exposeString("name"),
-    payments: t.relation("payments"),
+    payments: t.relation("payments", { nullable: true }),
     provider: t.exposeString("provider"),
-    user: t.relation("user"),
   }),
 });
 

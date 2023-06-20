@@ -34,7 +34,7 @@ export const builder = new SchemaBuilder<{
   };
 }>({
   scopeAuthOptions: {
-    unauthorizedError: (parent, context, info, result) => new GraphQLError(`Not authorized`),
+    unauthorizedError: (parent, context, info, result) => new GraphQLError(`Not authorized`, { extensions: { code: 'FORBIDDEN'}}),
   },
   plugins: [ScopeAuthPlugin, PrismaPlugin],
   authScopes: async (context) => ({

@@ -8,7 +8,6 @@ builder.prismaObject("Payment", {
       type: "Date",
     }),
     amount: t.exposeFloat("amount"),
-    expense: t.relation("expense"),
     paidAt: t.expose("paidAt", {
       type: "Date",
     }),

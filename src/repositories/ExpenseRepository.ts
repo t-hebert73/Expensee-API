@@ -36,6 +36,28 @@ class ExpenseRepository {
     });
   }
 
+  async delete(id: number) {
+    const existingExpense = await prisma.expense.findFirst({ where: { id: id, userId: this.currentUser.id } });
+    if (!existingExpense) throw new Error("Expense doesn't exist.");
+
+    await prisma.expense.update({
+      where: {
+        id,
+      },
+      data: {
+        payments: {
+          deleteMany: {},
+        },
+      },
+    });
+
+    return prisma.expense.delete({
+      where: {
+        id,
+      },
+    });
+  }
+
   async getMany(category: string | undefined | null) {
     const query: Prisma.ExpenseFindManyArgs = {};
     query.where = {};

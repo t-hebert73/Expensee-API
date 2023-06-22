@@ -104,3 +104,25 @@ builder.mutationField("updateExpense", (t) =>
     },
   })
 );
+
+builder.mutationField("deleteExpense", (t) =>
+  t.prismaField({
+    authScopes: {
+      loggedIn: true,
+    },
+    type: "Expense",
+    args: {
+      id: t.arg.int({
+        required: true,
+      }),
+    },
+    resolve: async (parent, root, args, ctx, info) => {
+      try {
+        return await ctx.expenseRepository.delete(args.id);
+      } catch (error) {
+        const err = error as Error;
+        throw new GraphQLError(err.message);
+      }
+    },
+  })
+);

@@ -14,14 +14,35 @@ builder.prismaObject("Payment", {
   }),
 });
 
-const CreatePaymentInput = builder.inputType("PaymentInput", {
+builder.queryField("payment", (t) =>
+  t.prismaField({
+    authScopes: {
+      loggedIn: true,
+    },
+    type: "Payment",
+    args: {
+      id: t.arg.int({
+        required: true,
+      }),
+    },
+    resolve: async (parent, root, args, ctx, info) => {
+      try {
+        return await ctx.paymentRepository.get(args.id);
+      } catch (error) {
+        const err = error as Error;
+        throw new GraphQLError(err.message);
+      }
+    },
+  })
+);
+
+const PaymentInput = builder.inputType("PaymentInput", {
   fields: (t) => ({
     amount: t.float({ required: true }),
     paidAt: t.field({
       required: true,
       type: "Date",
     }),
-    expenseId: t.int({ required: true }),
   }),
 });
 
@@ -32,14 +53,15 @@ builder.mutationField("createPayment", (t) =>
     },
     type: "Payment",
     args: {
+      expenseId: t.arg.int({ required: true }),
       paymentInput: t.arg({
-        type: CreatePaymentInput,
+        type: PaymentInput,
         required: true,
       }),
     },
     resolve: async (parent, root, args, ctx, info) => {
       try {
-        return await ctx.paymentRepository.create(args.paymentInput);
+        return await ctx.paymentRepository.create(args.expenseId, args.paymentInput);
       } catch (error) {
         const err = error as Error;
         throw new GraphQLError(err.message);
@@ -47,16 +69,6 @@ builder.mutationField("createPayment", (t) =>
     },
   })
 );
-
-const UpdatePaymentInput = builder.inputType("UpdatePaymentInput", {
-  fields: (t) => ({
-    amount: t.float({ required: true }),
-    paidAt: t.field({
-      required: true,
-      type: "Date",
-    }),
-  }),
-});
 
 builder.mutationField("updatePayment", (t) =>
   t.prismaField({
@@ -69,13 +81,35 @@ builder.mutationField("updatePayment", (t) =>
         required: true,
       }),
       paymentInput: t.arg({
-        type: UpdatePaymentInput,
+        type: PaymentInput,
         required: true,
       }),
     },
     resolve: async (parent, root, args, ctx, info) => {
       try {
         return await ctx.paymentRepository.update(args.id, args.paymentInput);
+      } catch (error) {
+        const err = error as Error;
+        throw new GraphQLError(err.message);
+      }
+    },
+  })
+);
+
+builder.mutationField("deletePayment", (t) =>
+  t.prismaField({
+    authScopes: {
+      loggedIn: true,
+    },
+    type: "Payment",
+    args: {
+      id: t.arg.int({
+        required: true,
+      }),
+    },
+    resolve: async (parent, root, args, ctx, info) => {
+      try {
+        return await ctx.paymentRepository.delete(args.id);
       } catch (error) {
         const err = error as Error;
         throw new GraphQLError(err.message);

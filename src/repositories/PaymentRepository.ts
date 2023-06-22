@@ -2,7 +2,6 @@ import { prisma } from "../db";
 import { Prisma, User } from "@prisma/client";
 
 type IPaymentData = {
-  expenseId?: number;
   amount: number;
   paidAt: Date;
 };
@@ -14,9 +13,9 @@ class PaymentRepository {
     this.currentUser = currentUser;
   }
 
-  async create(paymentData: IPaymentData) {
+  async create(expenseId: number, paymentData: IPaymentData) {
     const expense = await prisma.expense.findFirst({
-      where: { id: paymentData.expenseId, userId: this.currentUser.id },
+      where: { id: expenseId, userId: this.currentUser.id },
     });
 
     if (!expense) throw new Error("Expense doesn't exist.");
@@ -24,7 +23,7 @@ class PaymentRepository {
     const payment = {
       amount: paymentData.amount,
       paidAt: paymentData.paidAt,
-      expense: { connect: { id: paymentData.expenseId } },
+      expense: { connect: { id: expenseId } },
     };
 
     return prisma.payment.create({
@@ -33,7 +32,7 @@ class PaymentRepository {
   }
 
   async update(id: number, paymentData: IPaymentData) {
-    const payment = await prisma.payment.findFirst({ where: { id: id }, include: { expense: true }})
+    const payment = await prisma.payment.findFirst({ where: { id: id }, include: { expense: true } });
     if (payment?.expense.userId !== this.currentUser.id) throw new Error("Payment doesn't exist.");
 
     return prisma.payment.update({
@@ -41,6 +40,17 @@ class PaymentRepository {
         id: id,
       },
       data: paymentData,
+    });
+  }
+
+  async delete(id: number) {
+    const payment = await prisma.payment.findFirst({ where: { id: id }, include: { expense: true } });
+    if (payment?.expense.userId !== this.currentUser.id) throw new Error("Payment doesn't exist.");
+
+    return prisma.payment.delete({
+      where: {
+        id: id,
+      },
     });
   }
 
@@ -59,8 +69,8 @@ class PaymentRepository {
     query.where = {
       id: id,
       expense: {
-        userId: this.currentUser.id
-      }
+        userId: this.currentUser.id,
+      },
     };
 
     return prisma.payment.findFirstOrThrow(query);

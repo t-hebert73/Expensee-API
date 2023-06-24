@@ -6,6 +6,16 @@ type IPaymentData = {
   paidAt: Date;
 };
 
+type IDateRange = {
+  start: Date;
+  end: Date;
+};
+
+type IWhereData = {
+  expenseId?: number;
+  dateRange?: IDateRange | undefined | null;
+};
+
 class PaymentRepository {
   currentUser: User;
 
@@ -74,6 +84,26 @@ class PaymentRepository {
     };
 
     return prisma.payment.findFirstOrThrow(query);
+  }
+
+  async getWhere(whereData: IWhereData) {
+    const query: Prisma.PaymentFindFirstOrThrowArgs =  {};
+    query.where = {};
+
+    query.where.expenseId = whereData.expenseId ? whereData.expenseId : undefined;
+
+    query.where.paidAt = {
+      gte: whereData.dateRange?.start,
+      lte: whereData.dateRange?.end,
+    };
+
+    query.where.expense = {
+      userId: this.currentUser.id,
+    };
+
+    console.log(query);
+
+    return prisma.payment.findMany(query);
   }
 }
 

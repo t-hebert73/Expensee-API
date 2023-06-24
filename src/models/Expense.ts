@@ -1,6 +1,13 @@
 import { builder } from "../builder";
 import { GraphQLError } from "graphql";
 
+const dateRangeInput = builder.inputType("DateRangeInput", {
+  fields: (t) => ({
+    start: t.field({ type: "Date", required: true }),
+    end: t.field({ type: "Date", required: true }),
+  }),
+});
+
 builder.prismaObject("Expense", {
   fields: (t) => ({
     id: t.exposeID("id"),
@@ -10,7 +17,15 @@ builder.prismaObject("Expense", {
     }),
     frequency: t.exposeString("frequency"),
     name: t.exposeString("name"),
-    payments: t.relation("payments", { nullable: true }),
+    payments: t.relation("payments", {
+      args: {
+        paidAtDateRange: t.arg({ type: dateRangeInput }),
+      },
+      resolve: async (parent, root, args, ctx, info) => {
+        return await ctx.paymentRepository.getWhere({ expenseId: root.id, dateRange: args.paidAtDateRange });
+      },
+      nullable: true,
+    }),
     provider: t.exposeString("provider"),
   }),
 });

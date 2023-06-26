@@ -101,8 +101,6 @@ class PaymentRepository {
       userId: this.currentUser.id,
     };
 
-    console.log(query);
-
     return prisma.payment.findMany(query);
   }
 }

@@ -23,7 +23,7 @@ async function main() {
         create: [
           {
             name: "Mortgage",
-            category: "Mortgage",
+            category: "Mortgages",
             provider: "RBC",
             frequency: "Bi-weekly",
             payments: {
@@ -49,7 +49,7 @@ async function main() {
           },
           {
             name: "Hydro",
-            category: "Utility",
+            category: "Utilities",
             provider: "Welland Hydro",
             frequency: "Monthly",
             payments: {
@@ -71,7 +71,7 @@ async function main() {
           },
           {
             name: "Gas",
-            category: "Utility",
+            category: "Utilities",
             provider: "Enbridge",
             frequency: "Monthly",
             payments: {

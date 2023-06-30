@@ -5,9 +5,13 @@
   "main": "index.js",
   "scripts": {
     "test": "jest",
-    "build": "npm i && npx prisma generate",
+    "init": "npm run prisma-build && prisma migrate dev --skip-seed",
+    "prisma-build": "npx prisma generate",
     "dev": "ts-node-dev --respawn --exit-child src/index.ts",
-    "migrate": "npx prisma migrate"
+    "build": "tsc -p .",
+    "prod": "node dist/src/index.js",
+    "migrate": "npx prisma migrate",
+    "seed": "npx prisma db seed"
   },
   "keywords": [],
   "author": "Trevor Hebert",

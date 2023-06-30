@@ -14,29 +14,29 @@ The project uses the following:
 
 &nbsp;
 
-## Project Setup
+## First steps
 
-```sh
-npm install
-```
-
-### Generates the [prisma db client](https://www.prisma.io/docs/concepts/components/prisma-client/working-with-prismaclient/generating-prisma-client) & related types
-
-```sh
-npm run build
-```
-### If this is your first run of the project:
-
-```sh
-npx prisma migrate dev
-```
-This will run the migrations on your DB.
+Copy the .example.env file with the name .env and fill out the variables
 
 &nbsp;
 
-### Start the dev server
+## Running the project
+
 ```sh
-npm run dev
+docker compose up
+```
+
+This will start up the containers & do the following:
+- install the dependencies
+- generate the [prisma db client](https://www.prisma.io/docs/concepts/components/prisma-client/working-with-prismaclient/generating-prisma-client) & related types
+- migrate the database
+
+&nbsp;
+
+If you want you can seed the database with some data via:
+
+```sh
+docker exec -it expensee-api npm run seed
 ```
 
 You should be up and running at [localhost:4000](http://localhost:4000)
@@ -46,7 +46,8 @@ You should be up and running at [localhost:4000](http://localhost:4000)
 ### Run the tests
 
 ```sh
-npm run test
+docker exec -it expensee-api npm run test
 ```
+
 
 

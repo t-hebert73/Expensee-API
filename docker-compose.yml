@@ -1,0 +1,36 @@
+version: '3'
+services:
+
+  expensee-api:
+    build:
+      context: .
+      target: "base"
+    container_name: expensee-api
+    restart: unless-stopped
+    tty: true
+    command: sh -c "npm run init && npm run dev"
+    env_file:
+      - .env
+    working_dir: /app
+    ports:
+      - "4000:4000"
+    volumes:
+      - .:/app
+      - /app/node_modules
+
+  expensee-db:
+    image: postgres:bullseye
+    container_name: expensee-db
+    restart: unless-stopped
+    tty: true
+    ports:
+      - "54321:5432"
+    env_file:
+      - .env
+    volumes:
+      - dbdata:/var/lib/postgresql/data
+
+#Volumes
+volumes:
+  dbdata:
+    driver: local

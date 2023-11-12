@@ -13,6 +13,10 @@ import ExpenseRepository from "./repositories/ExpenseRepository";
 import UserRepository from "./repositories/UserRepository";
 import PaymentRepository from "./repositories/PaymentRepository";
 
+type IImportResult = {
+  status: string;
+};
+
 export const builder = new SchemaBuilder<{
   AuthScopes: {
     loggedIn: boolean;
@@ -25,16 +29,19 @@ export const builder = new SchemaBuilder<{
   };
   Scalars: {
     Date: { Input: Date; Output: Date };
+    File: { Input: File; Output: never };
   };
   PrismaTypes: PrismaTypes;
   Objects: {
     LoginResult: ILoginResult;
     JwtToken: JwtToken;
     RegisterResult: IRegisterResult;
+    ImportResult: IImportResult;
   };
 }>({
   scopeAuthOptions: {
-    unauthorizedError: (parent, context, info, result) => new GraphQLError(`Not authorized`, { extensions: { code: 'FORBIDDEN'}}),
+    unauthorizedError: (parent, context, info, result) =>
+      new GraphQLError(`Not authorized`, { extensions: { code: "FORBIDDEN" } }),
   },
   plugins: [ScopeAuthPlugin, PrismaPlugin],
   authScopes: async (context) => ({

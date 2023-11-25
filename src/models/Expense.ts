@@ -1,6 +1,7 @@
 import { builder } from "../builder";
 import { GraphQLError } from "graphql";
 import CsvReader from "../utils/CsvReader";
+import importConvertorFactory from "../libs/importer/ImportConvertor";
 
 const dateRangeInput = builder.inputType("DateRangeInput", {
   fields: (t) => ({
@@ -160,6 +161,10 @@ builder.scalarType("File", {
   },
 });
 
+export const importType = builder.enumType('ImportType', {
+  values: ['rbc'] as const,
+});
+
 builder.mutationField("parseExpensesImport", (t) =>
   t.field({
     authScopes: {
@@ -171,15 +176,21 @@ builder.mutationField("parseExpensesImport", (t) =>
         type: "File",
         required: true,
       }),
+      type: t.arg({
+        type: importType,
+        required: true,
+      }),
     },
     resolve: async (parent, args, ctx) => {
       try {
         const csvReader = new CsvReader(args.file);
+    
+        const importer = importConvertorFactory.createImporter(args.type, await csvReader.read())
 
-        const result = await csvReader.read()
-        
-        console.log(result.headers);
-        console.log(result.records[0]);
+        console.log(importer.run())
+
+        // next step add an import keyword to expense model
+
         //console.log(records);
         // records.forEach((record) => {
         //   console.log(record[4])

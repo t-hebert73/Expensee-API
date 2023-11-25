@@ -17,7 +17,7 @@ class CsvReader {
   async read(): Promise<CsvResult> {
     const textContent = await this.file.text();
 
-    this.records = textContent.split("\n").map((x) => x.split(this.delimeter));
+    this.records = textContent.replace("\r", "").split("\n").map((x) => x.split(this.delimeter).map((y) => y.trim())).filter(r => r.length > 1);
     this.headers = this.records.splice(0, 1)[0];
 
     return {

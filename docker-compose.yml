@@ -19,7 +19,7 @@ services:
       - /app/node_modules
 
   expensee-db:
-    image: postgres:bullseye
+    image: postgres:15-bullseye
     container_name: expensee-db
     restart: unless-stopped
     tty: true

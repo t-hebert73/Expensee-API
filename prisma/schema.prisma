@@ -24,15 +24,16 @@ model User {
 }
 
 model Expense {
-  id        Int     @id @default(autoincrement())
-  category  String
-  createdAt DateTime @default(now())
-  frequency String
-  name      String
-  payments  Payment[]
-  provider  String
-  userId    Int
-  user      User    @relation(fields: [userId], references: [id])
+  id            Int     @id @default(autoincrement())
+  category      String
+  createdAt     DateTime @default(now())
+  frequency     String
+  importKeyword String?
+  name          String
+  payments      Payment[]
+  provider      String
+  userId        Int
+  user          User    @relation(fields: [userId], references: [id])
 }
 
 model Payment {

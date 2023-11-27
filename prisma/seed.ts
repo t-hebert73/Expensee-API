@@ -26,6 +26,7 @@ async function main() {
             category: "Mortgages",
             provider: "RBC",
             frequency: "Bi-weekly",
+            importKeyword: "mortgage",
             payments: {
               create: [
                 {
@@ -52,6 +53,7 @@ async function main() {
             category: "Utilities",
             provider: "Welland Hydro",
             frequency: "Monthly",
+            importKeyword: "welland hydro",
             payments: {
               create: [
                 {
@@ -74,6 +76,7 @@ async function main() {
             category: "Utilities",
             provider: "Enbridge",
             frequency: "Monthly",
+            importKeyword: "enbridge gas",
             payments: {
               create: [
                 {

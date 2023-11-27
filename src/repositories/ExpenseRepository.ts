@@ -1,4 +1,4 @@
-import { prisma } from "../db";
+import { prisma, } from "../db";
 import { Prisma, User } from "@prisma/client";
 
 type IExpenseData = {
@@ -6,6 +6,7 @@ type IExpenseData = {
   frequency: string;
   provider: string;
   name: string;
+  importKeyword: string | null | undefined;
 };
 
 class ExpenseRepository {
@@ -85,4 +86,4 @@ class ExpenseRepository {
   }
 }
 
-export default ExpenseRepository;
+export { ExpenseRepository as default, IExpenseData };

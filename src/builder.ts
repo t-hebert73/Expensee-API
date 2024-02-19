@@ -15,6 +15,8 @@ import PaymentRepository from "./repositories/PaymentRepository";
 
 type IImportResult = {
   status: string;
+  total: number;
+  totalImported: number;
 };
 
 export const builder = new SchemaBuilder<{

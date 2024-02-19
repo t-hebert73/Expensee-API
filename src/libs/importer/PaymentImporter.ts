@@ -35,15 +35,19 @@ class PaymentImporter {
 
     const importer = await importFactory.createImporter(this.args.type, this.args.file);
 
-    const importableRecords = importer.run();
+    const importableResults = importer.run();
 
-    importableRecords.records.forEach(async (importableRecord, i) => {
+    const result = {
+      total: importableResults.totalRows,
+      totalImported: 0,
+    };
 
+    for (const importableRecord of importableResults.records) {
       const expense = await this.ctx.expenseRepository.getOneWhere({
         importKeyword: importableRecord.expenseImportKeyword,
       });
 
-      if (!expense) return;
+      if (!expense) continue;
 
       const existingPayment = await this.ctx.paymentRepository.getOneWhere({
         expenseId: expense.id,
@@ -51,18 +55,21 @@ class PaymentImporter {
         paidAt: importableRecord.paidAt,
       });
 
-      if (existingPayment) return;
+      if (existingPayment) continue;
 
       await this.ctx.paymentRepository.create({
         ...importableRecord,
         expense: {
           connect: {
-            id: expense.id
+            id: expense.id,
           },
         },
       });
 
-    });
+      result.totalImported++;
+    }
+
+    return result;
   }
 
   async createImporter(importType: string, file: File) {

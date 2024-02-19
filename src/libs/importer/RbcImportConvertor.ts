@@ -9,6 +9,7 @@ type ImportablePaymentRecord = {
 
 type ImportableResults = {
   records: ImportablePaymentRecord[];
+  totalRows: number;
 };
 
 abstract class Importer {
@@ -104,6 +105,7 @@ class RbcImportConvertor extends Importer {
 
     return {
       records: importableResults,
+      totalRows: this.csvResult.records.length
     };
   }
 }
@@ -116,6 +118,7 @@ class ScotiaImportConvertor extends Importer {
   run(): ImportableResults {
     return {
       records: [],
+      totalRows: 0
     };
   }
 }

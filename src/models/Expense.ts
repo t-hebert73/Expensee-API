@@ -80,15 +80,15 @@ const expenseInput = builder.inputType("ExpenseInput", {
   }),
 });
 
-const cleanExpenseInput = (args: any): IExpenseData  => {
-  return { 
+const cleanExpenseInput = (args: any): IExpenseData => {
+  return {
     category: args.category,
     frequency: args.frequency,
-    importKeyword: (args.importKeyword !== undefined) ? args.importKeyword : null,
+    importKeyword: args.importKeyword !== undefined ? args.importKeyword : null,
     name: args.name,
     provider: args.provider,
-   };
-}
+  };
+};
 
 builder.mutationField("createExpense", (t) =>
   t.prismaField({
@@ -157,13 +157,25 @@ builder.mutationField("deleteExpense", (t) =>
 );
 
 builder.objectType("ImportResult", {
-  description: "Resulting parsed importable expenses",
+  description: "Resulting imported results information.",
   fields: (t) => ({
     status: t.string({
       resolve: (parent) => {
         return parent.status;
       },
     }),
+
+    total: t.int({
+      resolve: (parent) => {
+        return parent.total
+      }
+    }),
+
+    totalImported: t.int({
+      resolve: (parent) => {
+        return parent.totalImported
+      }
+    })
   }),
 });
 
@@ -197,38 +209,7 @@ builder.mutationField("parseExpensesImport", (t) =>
       try {
         const paymentImporter = new PaymentImporter(ctx, args);
 
-        paymentImporter.run()
-
-        // next step add an import keyword to expense model
-
-        //console.log(records);
-        // records.forEach((record) => {
-        //   console.log(record[4])
-        // })
-
-        /**
-         * Plan
-         *
-         * 1) csv reader class?
-         *
-         * 2) RBCImportConvertor class to create ImportablePaymentRecords
-         *
-         * 3) ImportGuard class to check if ImportablePaymentRecords need/don't need to be imported (already exist in DB etc)
-         *
-         * 4) return the ImportablePaymentRecords in json format
-         */
-
-        // const records = textContent.split("\n");
-
-        // records.forEach((record) => {
-        //   let parsed = record.split(",");
-
-        //   let type = parsed[4];
-
-        //   //console.log(type);
-        // });
-
-        return { status: "123" };
+        return { status: "success", ...await paymentImporter.run()};
       } catch (error) {
         const err = error as Error;
         throw new GraphQLError(err.message);

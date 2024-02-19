@@ -1,8 +1,7 @@
 import { builder } from "../builder";
 import { GraphQLError } from "graphql";
-import CsvReader from "../utils/CsvReader";
-import importConvertorFactory from "../libs/importer/ImportConvertor";
 import { IExpenseData } from "../repositories/ExpenseRepository";
+import PaymentImporter from "../libs/importer/PaymentImporter";
 
 const dateRangeInput = builder.inputType("DateRangeInput", {
   fields: (t) => ({
@@ -196,11 +195,9 @@ builder.mutationField("parseExpensesImport", (t) =>
     },
     resolve: async (parent, args, ctx) => {
       try {
-        const csvReader = new CsvReader(args.file);
+        const paymentImporter = new PaymentImporter(ctx, args);
 
-        const importer = importConvertorFactory.createImporter(args.type, await csvReader.read());
-
-        console.log(importer.run());
+        paymentImporter.run()
 
         // next step add an import keyword to expense model
 

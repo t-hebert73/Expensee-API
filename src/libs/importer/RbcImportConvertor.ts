@@ -4,6 +4,7 @@ type ImportablePaymentRecord = {
   amount: number;
   paidAt: Date;
   description: string;
+  expenseImportKeyword: string;
 };
 
 type ImportableResults = {
@@ -37,7 +38,29 @@ class RbcImportConvertor extends Importer {
   }
 
   run(): ImportableResults {
-    const keywords = ["mortgage", "property tax", "enbridge gas", "welland hydro", "water bill"];
+    const keywords = [
+      "caa insurance company",
+      "enbridge gas",
+      "mortgage",
+      "property tax",
+      "water bill",
+      "welland hydro",
+    ];
+
+    const keywordOverrides = [
+      {
+        keyword: "caa insurance company",
+        threshold: 1000,
+        aboveThresholdKeyword: "caa insurance company property",
+        belowThresholdKeyword: "caa insurance company car",
+      },
+      {
+        keyword: "mortgage",
+        threshold: 3000,
+        aboveThresholdKeyword: "mortgage lumpsum",
+        belowThresholdKeyword: "mortgage",
+      },
+    ];
 
     const importableResults: ImportablePaymentRecord[] = [];
 
@@ -51,25 +74,33 @@ class RbcImportConvertor extends Importer {
         chequeNumber,
         descriptionOne: descriptionOne.replace(/"/g, "").trim(),
         descriptionTwo: descriptionTwo.replace(/"/g, "").trim(),
-        cad: parseFloat(cad),
+        cad: parseFloat(cad) * -1, // convert to postive
         usd,
       };
 
       keywords.every((keyword) => {
         if (descriptionTwo.toLowerCase().includes(keyword)) {
+          const overrideInfo = keywordOverrides.find((overrideInfo) => overrideInfo.keyword == keyword);
+          if (overrideInfo) {
+            keyword =
+              rbcRecord.cad > overrideInfo.threshold
+                ? overrideInfo.aboveThresholdKeyword
+                : overrideInfo.belowThresholdKeyword;
+          }
+
           importableResults.push({
             amount: rbcRecord.cad,
             paidAt: rbcRecord.transactionDate,
-            description: rbcRecord.descriptionTwo
+            description: rbcRecord.descriptionTwo,
+            expenseImportKeyword: keyword,
           });
 
-          return false; 
+          return false;
         }
 
         return true;
       });
     });
-    //console.log(this.csvResult.headers);
 
     return {
       records: importableResults,

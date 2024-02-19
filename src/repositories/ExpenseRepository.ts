@@ -84,6 +84,16 @@ class ExpenseRepository {
 
     return prisma.expense.findFirstOrThrow(query);
   }
+
+  async getOneWhere(whereData: Prisma.ExpenseWhereInput) {
+    const query: Prisma.ExpenseFindFirstArgs = {};
+
+    query.where = whereData;
+
+    query.where.userId = this.currentUser.id
+
+    return prisma.expense.findFirst(query);
+  }
 }
 
 export { ExpenseRepository as default, IExpenseData };

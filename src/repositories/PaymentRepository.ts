@@ -12,7 +12,9 @@ type IDateRange = {
 };
 
 type IWhereData = {
+  amount?: number;
   expenseId?: number;
+  expenseImportKeyword?: string;
   dateRange?: IDateRange | undefined | null;
 };
 
@@ -23,17 +25,17 @@ class PaymentRepository {
     this.currentUser = currentUser;
   }
 
-  async create(expenseId: number, paymentData: IPaymentData) {
+  async create(createData: Prisma.PaymentCreateInput) {
     const expense = await prisma.expense.findFirst({
-      where: { id: expenseId, userId: this.currentUser.id },
+      where: { id: createData.expense.connect?.id, userId: this.currentUser.id },
     });
 
     if (!expense) throw new Error("Expense doesn't exist.");
 
     const payment = {
-      amount: paymentData.amount,
-      paidAt: paymentData.paidAt,
-      expense: { connect: { id: expenseId } },
+      amount: createData.amount,
+      paidAt: createData.paidAt,
+      expense: { connect: { id: createData.expense.connect?.id } },
     };
 
     return prisma.payment.create({
@@ -103,6 +105,18 @@ class PaymentRepository {
 
     return prisma.payment.findMany(query);
   }
+
+  async getOneWhere(whereData: Prisma.PaymentWhereInput) {
+    const query: Prisma.PaymentFindFirstArgs = {};
+
+    query.where = whereData;
+    if (!query.where.expense) query.where.expense = {}
+
+    query.where.expense.userId = this.currentUser.id
+
+    return prisma.payment.findFirst(query);
+  }
+
 }
 
 export default PaymentRepository;

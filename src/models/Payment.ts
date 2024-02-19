@@ -61,7 +61,14 @@ builder.mutationField("createPayment", (t) =>
     },
     resolve: async (parent, root, args, ctx, info) => {
       try {
-        return await ctx.paymentRepository.create(args.expenseId, args.paymentInput);
+        return await ctx.paymentRepository.create({
+          ...args.paymentInput,
+          expense: {
+            connect: {
+              id: args.expenseId
+            }
+          },
+        });
       } catch (error) {
         const err = error as Error;
         throw new GraphQLError(err.message);

@@ -1,4 +1,4 @@
-import { prisma } from "../db";
+import { prisma, } from "../db";
 import { Prisma, User } from "@prisma/client";
 
 type IExpenseData = {
@@ -6,6 +6,7 @@ type IExpenseData = {
   frequency: string;
   provider: string;
   name: string;
+  importKeyword: string | null | undefined;
 };
 
 class ExpenseRepository {
@@ -83,6 +84,16 @@ class ExpenseRepository {
 
     return prisma.expense.findFirstOrThrow(query);
   }
+
+  async getOneWhere(whereData: Prisma.ExpenseWhereInput) {
+    const query: Prisma.ExpenseFindFirstArgs = {};
+
+    query.where = whereData;
+
+    query.where.userId = this.currentUser.id
+
+    return prisma.expense.findFirst(query);
+  }
 }
 
-export default ExpenseRepository;
+export { ExpenseRepository as default, IExpenseData };

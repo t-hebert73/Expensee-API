@@ -80,7 +80,7 @@ class RbcImportConvertor extends Importer {
       };
 
       keywords.every((keyword) => {
-        if (descriptionTwo.toLowerCase().includes(keyword)) {
+        if (descriptionOne.toLowerCase().includes(keyword)) {
           const overrideInfo = keywordOverrides.find((overrideInfo) => overrideInfo.keyword == keyword);
           if (overrideInfo) {
             keyword =

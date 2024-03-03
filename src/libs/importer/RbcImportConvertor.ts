@@ -27,8 +27,7 @@ type RbcRecord = {
   accountNumber: string;
   transactionDate: Date;
   chequeNumber: string;
-  descriptionOne: string;
-  descriptionTwo: string;
+  description: string;
   cad: number;
   usd: string;
 };
@@ -73,8 +72,7 @@ class RbcImportConvertor extends Importer {
         accountNumber,
         transactionDate: new Date(transactionDate),
         chequeNumber,
-        descriptionOne: descriptionOne.replace(/"/g, "").trim(),
-        descriptionTwo: descriptionTwo.replace(/"/g, "").trim(),
+        description: descriptionOne.replace(/"/g, "").trim() + " " + descriptionTwo.replace(/"/g, "").trim(),
         cad: parseFloat(cad) * -1, // convert to postive
         usd,
       };
@@ -89,12 +87,14 @@ class RbcImportConvertor extends Importer {
                 : overrideInfo.belowThresholdKeyword;
           }
 
-          importableResults.push({
+          const importableResult = {
             amount: rbcRecord.cad,
             paidAt: rbcRecord.transactionDate,
-            description: rbcRecord.descriptionTwo,
+            description: rbcRecord.description,
             expenseImportKeyword: keyword,
-          });
+          };
+
+          importableResults.push(importableResult);
 
           return false;
         }
@@ -105,7 +105,7 @@ class RbcImportConvertor extends Importer {
 
     return {
       records: importableResults,
-      totalRows: this.csvResult.records.length
+      totalRows: this.csvResult.records.length,
     };
   }
 }
@@ -118,7 +118,7 @@ class ScotiaImportConvertor extends Importer {
   run(): ImportableResults {
     return {
       records: [],
-      totalRows: 0
+      totalRows: 0,
     };
   }
 }

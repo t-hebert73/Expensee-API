@@ -45,6 +45,7 @@ class RbcImportConvertor extends Importer {
       "property tax",
       "water bill",
       "welland hydro",
+      "bell canada",
     ];
 
     const keywordOverrides = [

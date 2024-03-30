@@ -5,8 +5,7 @@
   "main": "index.js",
   "scripts": {
     "test": "jest",
-    "init": "npm run prisma-build",
-    "prisma-build": "npx prisma generate",
+    "init": "npx prisma generate",
     "dev": "ts-node-dev --respawn --exit-child src/index.ts",
     "build": "tsc -p .",
     "prod": "node dist/src/index.js",

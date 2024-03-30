@@ -11,12 +11,12 @@ services:
     command: sh -c "npm run init && npm run dev"
     env_file:
       - .env
-    working_dir: /app
+    working_dir: /expensee
     ports:
       - "4000:4000"
     volumes:
-      - .:/app
-      - /app/node_modules
+      - ./prisma:/expensee/prisma
+      - ./src:/expensee/src
 
   expensee-db:
     image: postgres:15-bullseye
